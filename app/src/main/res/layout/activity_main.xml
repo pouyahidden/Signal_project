@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/bacgroundmain"
+    android:layout_height="match_parent"
+    tools:context=".UI.MainActivity">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:background="@mipmap/blure"
+        android:backgroundTint="@color/bacgroundmain1"
+        android:layout_height="match_parent">
+
+
+
+
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/profile"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@mipmap/notification"
+        android:focusable="true"
+        app:tint="@color/icon" />
+
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:id="@+id/menu"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:layout_marginTop="31dp"
+            android:layout_marginStart="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@mipmap/menu"
+            android:focusable="true"
+            app:tint="@color/icon" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/vp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@mipmap/vp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:id="@+id/line"
+        app:layout_constraintTop_toBottomOf="@id/vp"
+        android:background="@mipmap/line"/>
+
+
+    <FrameLayout
+        android:id="@+id/nav_host_fragment_activity_main23"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="5dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/nav_host_fragment_activity_main24"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="5dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/time"
+        android:layout_marginTop="17dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/line"
+        android:src="@mipmap/time"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active Signals"
+        android:id="@+id/txt1"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:layout_marginStart="5dp"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        app:layout_constraintStart_toEndOf="@id/time"/>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_marginTop="165dp"
+            android:id="@+id/idNestedSV"
+            android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/parentrecycler"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/signal_recycler_item"/>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <ProgressBar
+            android:layout_width="50dp"
+            android:indeterminateTint="@color/oranje"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/idLoadingPB"
+            android:visibility="visible"
+            android:elevation="5dp"
+            android:backgroundTint="@color/oranje"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recently purchased"
+        android:id="@+id/txt2"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:textColor="@color/text_color"
+        android:layout_marginStart="5dp"
+        app:layout_constraintTop_toBottomOf="@id/txt1"
+        app:layout_constraintStart_toEndOf="@id/time"/>
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:padding="4dp"
+        android:id="@+id/more"
+        android:visibility="gone"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginTop="27dp"
+        android:layout_marginEnd="19dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/line"
+        android:src="@mipmap/more"
+        app:tint="@color/icon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
