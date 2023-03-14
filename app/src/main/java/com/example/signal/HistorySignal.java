@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -46,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,38 +60,36 @@ import butterknife.ButterKnife;
 public class HistorySignal extends AppCompatActivity {
     public String message = "", token;
     ImageView menu, more, profile;
-    TextView text1;
     @BindView(R.id.parentrecycler)
     RecyclerView rvMain;
+    protected  int page =1, limit = 300;
     List<Inner> inners = new ArrayList<>();
     Inner single = new Inner("name", "value");
     List<Outer> outers = new ArrayList<>();
+    List<String> values = new ArrayList<String>();
+    List<String> ids = new ArrayList<String>();
+    String url1 = "https://vprofit.info/api/signal/all?filter=";
+    String url3 = "&per_page=10&page=";
+    String url = "https://vprofit.info/api/signal/all?filter=&page=";
+    boolean doubleBackToExitPressedOnce = false;
+    private ProgressBar loadingPB;
+    private OuterAdapter outerAdapter;
+    private NestedScrollView nestedSV;
     Outer dm = new Outer("trade_type", "currency_mark", "human_date", "title", "description", "mark", "profit", inners);
+
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             message = intent.getStringExtra("message");
-
-            url = url1 + message + url3;
-
+            url = url1 + message + url3+"&status=0" ;
             setupRv();
-            MakeVolleyConnection();
+            MakeVolleyConnection(page, limit);
 
 
         }
     };
-    List<String> values = new ArrayList<String>();
-    List<String> ids = new ArrayList<String>();
-    TextView txt1;
-    String url1 = "https://vprofit.info/api/signal/all?filter=";
-    String url2 = "";
-    String url3 = "&page=1&per_page=10&status=0";
-    String url = "https://vprofit.info/api/signal/all?page=1&per_page=10&status=0";
-    boolean doubleBackToExitPressedOnce = false;
-    private ProgressBar loadingPB;
-    private OuterAdapter outerAdapter;
-    private InnerAdapter innerAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,23 +100,25 @@ public class HistorySignal extends AppCompatActivity {
         more = findViewById(R.id.more);
         profile = findViewById(R.id.profile);
         loadingPB = findViewById(R.id.idLoadingPB);
-        text1 = findViewById(R.id.txt2);
-
+        nestedSV = findViewById(R.id.idNestedSV);
 
         ButterKnife.bind(this);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("custom-action-local-broadcast"));
-
-//
-        // Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         SharedPreferences sp = getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
-
         token = sp.getString("token", "");
-        //  Toast.makeText(getApplicationContext(), value1, Toast.LENGTH_SHORT).show();
-
-
         setupRv();
-        MakeVolleyConnection();
+        MakeVolleyConnection(page, limit);
 
+        nestedSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()) {
+                    page++;
+                    loadingPB.setVisibility(View.VISIBLE);
+                    MakeVolleyConnection(page, limit);
+                }
+            }
+        });
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,22 +155,24 @@ public class HistorySignal extends AppCompatActivity {
 
     }
 
-
-
     private void setupRv() {
         rvMain.setHasFixedSize(true);
         rvMain.setLayoutManager(new LinearLayoutManager(this));
         outerAdapter = new OuterAdapter();
-        innerAdapter = new InnerAdapter();
-        innerAdapter.notifyDataSetChanged();
         rvMain.setAdapter(outerAdapter);
+
     }
 
-    private void MakeVolleyConnection() {
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+    private void MakeVolleyConnection(int page, int limit) {
+        if (page > limit) {
 
+            Toast.makeText(this, "That's all the signals..", Toast.LENGTH_SHORT).show();
+            loadingPB.setVisibility(View.GONE);
+            return;
+        }
+        url = url + page + "&status=0";
+        RequestQueue queue = Volley.newRequestQueue(HistorySignal.this);
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-
 
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -177,93 +181,33 @@ public class HistorySignal extends AppCompatActivity {
                 loadingPB.setVisibility(View.GONE);
 
                 more.setVisibility(View.VISIBLE);
+
                 try {
-
-
                     JSONObject jsonObject = new JSONObject(response);
-//todo filter1
-                   // JSONArray arafilter = jsonObject.getJSONArray("array_filters");
-
- //////////////////////////////////////////////////////////////////////////////////////////////
+                    JSONArray arafilter = jsonObject.getJSONArray("array_filters");
                     JSONObject data = jsonObject.getJSONObject("signals");
                     JSONArray region = data.getJSONArray("data");
 
+                    ids.clear();
+                    values.clear();
+                    for (int i = 0; i < arafilter.length(); i++) {
+                        JSONObject obj = arafilter.getJSONObject(i);
+                        String id = obj.getString("id");
+                        String name = obj.getString("title");
 
-//                    for (int L = 0; L <region.length(); L++) {
-//                        JSONObject pool = region.getJSONObject(L);
-//                        JSONArray item = pool.getJSONArray("array_details");
-//               //         Toast.makeText(getApplicationContext(), ""+L, Toast.LENGTH_SHORT).show();
-//
-//                       if (L==0){
-//                            inners.clear();
-//                                   for (int j = 0; j < item.length(); j++) {
-//
-//                                   JSONObject ar = item.getJSONObject(j);
-//
-//
-//                                 Toast.makeText(getApplicationContext(), ""+ar, Toast.LENGTH_SHORT).show();
-//
-//                                    String name = single.setName(ar.getString("name"));
-//                                   String vall = single.setVall(ar.getString("value"));
-//
-//                                   inners.add(new Inner(name, vall));
-//
-//
-//                                 }
-//
-//
-//
-//                        }
-//
-//                    }
-                 //   JSONArray array = parent.getJSONArray("array_details");
-                    //    JSONObject itemdetails = pool.getJSONObject("currency");
-                    //  JSONObject filter = pool.getJSONObject("array_filters");
+                        ids.add(id);
+                        values.add(name);
 
+                        Intent intent = getIntent();
+                        intent.putStringArrayListExtra("filterlist", new ArrayList<>(values));
+                        intent.putStringArrayListExtra("filterid", new ArrayList<>(ids));
 
-   //todo filter2
+                    }
 
-//                    ids.clear();
-//                    values.clear();
-//                    for (int i = 0; i < arafilter.length(); i++) {
-//                        JSONObject obj = arafilter.getJSONObject(i);
-//                        String id = obj.getString("id");
-//                        String name = obj.getString("title");
-//
-//
-//                        ids.add(id);
-//                        values.add(name);
-//
-//                        Intent intent = getIntent();
-//                        intent.putStringArrayListExtra("filterlist", new ArrayList<>(values));
-//                        intent.putStringArrayListExtra("filterid", new ArrayList<>(ids));
-//
-//                    }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //String filter_array = arafilter.getString("title");
-                    //  String filter_array=   filterobj.getString("");
                     outers.clear();
-                    inners.clear();
+
                     for (int i = 0; i < region.length(); i++) {
                         JSONObject parent = region.getJSONObject(i);
-                        JSONObject details= parent.getJSONObject("details");
-
-
-                        Iterator<String> keys= details.keys();
-                        while (keys.hasNext())
-                        {
-                            String keyValue = (String)keys.next();
-                            String valueString = details.getString(keyValue);
-                            Toast.makeText(HistorySignal.this, ""+keyValue, Toast.LENGTH_SHORT).show();
-
-                            text1.append(valueString);
-
-                        }
-
-                        String s=    details.getString("entry_price");
-
-
 
                         String trade_type = dm.setTrade_type(parent.getString("trade_type"));
                         String currency_mark = dm.setCurrency_mark(parent.getString("currency_mark"));
@@ -272,59 +216,21 @@ public class HistorySignal extends AppCompatActivity {
                         String des = dm.setDescription(parent.getString("description"));
                         String profit = dm.setProfit(parent.getString("profit"));
                         String title = dm.setTitle(parent.getString("title"));
+                        inners.clear();
+                        JSONArray item = parent.getJSONArray("array_details");
 
+                        List<Inner> innersitems = new ArrayList<>();
+                        for (int j = 0; j < item.length(); j++) {
+                            JSONObject child = item.getJSONObject(j);
+                            String name = single.setName(child.getString("name"));
+                            String vall = single.setVall(child.getString("value"));
+                            innersitems.add(new Inner(name, vall));
+
+                        }
                         outers.clear();
-
-
-
-
-
-
-
-
-
-
-                     //   outerAdapter.addOuter(new Outer(trade_type, currency_mark, human_date, title, mark, des, profit, inners));
+                        outerAdapter.addOuter(new Outer(trade_type, currency_mark, human_date, title, mark, des, profit, innersitems));
 
                     }
-
-
-
-
-
-
-
-
-
-
-//                    for (int p = 0; p < pool.length();p++) {
-//                        pool=pool.getJSONObject(String.valueOf(p));
-//
-//
-//
-//
-//
-//
-//
-//                        // Toast.makeText(getApplicationContext(), ""+name+"   "+vall, Toast.LENGTH_SHORT).show();
-//
-//
-//
-//                    }
-                    //Currency itemsdetail = new Currency("","");
-                    // for (int k = 0; k<itemdetails.length();k++){
-                    //      JSONObject detailobject = itemdetails.getJSONObject(k);
-                    //  String description = dm.set(detailobject.getString("status_text"));
-
-//                        String title = detailobject.getString("title");
-//                        String mark =  detailobject.getString("mark");
-
-                    //      Toast.makeText(MainActivity.this, mark, Toast.LENGTH_SHORT).show();
-//                        String title =   single.setName(child.getString("name"));
-//                        String vall =   single.setVall(child.getString("value"));
-
-                    //     }
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -335,8 +241,15 @@ public class HistorySignal extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "" + error, Toast.LENGTH_LONG).show();
-                Log.i(String.valueOf(error), "");
+                try {
+                    String responseBody = new String(error.networkResponse.data, "utf-8");
+                    JSONObject data = new JSONObject(responseBody);
+                    String message = data.getString("message");
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+                }
             }
         }) {
 
@@ -350,10 +263,8 @@ public class HistorySignal extends AppCompatActivity {
             }
         };
 
-
         queue.add(request);
     }
-
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {

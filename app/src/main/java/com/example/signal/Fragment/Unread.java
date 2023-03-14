@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +37,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.signal.Adapter.TicketAdapter;
 import com.example.signal.Helper.MyApplication;
+import com.example.signal.Model.Inner;
 import com.example.signal.Model.TicketModel;
 import com.example.signal.R;
 import com.example.signal.databinding.UnreadBinding;
@@ -56,12 +58,16 @@ public class Unread extends Fragment {
     private List<TicketModel> ticketModels;
     String token;
     EditText search;
+
     MaterialCardView newmessage;
     private ProgressBar loadingPB;
     RequestQueue requestQueue;
     private TicketAdapter ticketAdapter;
     String reload;
     private UnreadBinding binding;
+    private NestedScrollView nestedSV;
+    private int page = 1;
+    private final int safahat=200;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
@@ -71,7 +77,7 @@ public class Unread extends Fragment {
 
 
             if (reload.equals("1")){
-                MakeVolleyConnection();
+                MakeVolleyConnection(page,safahat);
             }
 
             //setupRv();
@@ -86,15 +92,13 @@ public class Unread extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+
         binding = UnreadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter("custom-action-local-broadcast"));
-
-
         SharedPreferences sp =getActivity().getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
-
         token  = sp.getString("token","");
 
         newmessage = root.findViewById(R.id.newmessage);
@@ -103,6 +107,20 @@ public class Unread extends Fragment {
         loadingPB =root.findViewById(R.id.idLoadingPB);
         requestQueue = Volley.newRequestQueue(getActivity());
         ticketModels = new ArrayList<>();
+        nestedSV = root.findViewById(R.id.idNestedSV);
+
+        nestedSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                // on scroll change we are checking when users scroll as bottom.
+                if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()) {
+
+                    page++;
+                    loadingPB.setVisibility(View.VISIBLE);
+                    MakeVolleyConnection(page, safahat);
+                }
+            }
+        });
 
 
 
@@ -113,14 +131,12 @@ public class Unread extends Fragment {
                     String url1 = search.getText().toString();
 
                     url= "https://vprofit.info/api/support/all?filter=unread&q="+url1+"&per_page=10";
-                    MakeVolleyConnection();
+                    MakeVolleyConnection(page,safahat);
                     return true;
                 }
                 return false;
             }
         });
-
-
         newmessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,7 +147,8 @@ public class Unread extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),RecyclerView.VERTICAL,false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        MakeVolleyConnection();
+        MakeVolleyConnection(page,safahat);
+
 
         return root;
     }
@@ -142,19 +159,33 @@ public class Unread extends Fragment {
         binding = null;
     }
 
-    private void MakeVolleyConnection() {
-        ticketModels = new ArrayList<>();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.
-                Method.GET, url, null, new Response.Listener<JSONObject>() {
+    private void MakeVolleyConnection(int page, int safahat) {
+        if (page > safahat) {
+            // checking if the page number is greater than limit.
+            // displaying toast message in this case when page>limit.
+            Toast.makeText(getContext(), "That's all the data..", Toast.LENGTH_SHORT).show();
+
+            // hiding our progress bar.
+            loadingPB.setVisibility(View.GONE);
+            return;
+        }
+        // creating a string variable for url .
+        String url = "https://vprofit.info/api/support/all?filter=unread&q&per_page=10&page=" + page;
+
+        StringRequest jsonObjectRequest = new StringRequest(Request.
+                Method.GET, url,  new Response.Listener<String>() {
 
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(String response) {
 
                 loadingPB.setVisibility(View.GONE);
                 try {
 
-                    JSONArray dataArray = response.getJSONArray("data");
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    JSONArray dataArray = jsonObject.getJSONArray("data");
+
                     for (int i = 0; i < dataArray.length(); i++) {
                         JSONObject userData = dataArray.getJSONObject(i);
 
@@ -198,8 +229,6 @@ public class Unread extends Fragment {
                 return headerMap;
             }
         };
-
-
         MyApplication.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 

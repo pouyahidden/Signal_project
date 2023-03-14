@@ -140,16 +140,6 @@ public class LoginPage extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-//                int statusCode = error.networkResponse.statusCode;
-//                if (statusCode == 422) {
-//                    String status = error.getMessage();
-//                    Toast.makeText(LoginPage.this, status, Toast.LENGTH_SHORT).show();
-//                    //Toast.makeText(LoginPage.this, "The selected license code is invalid.", Toast.LENGTH_SHORT).show();
-//                }else if (statusCode==403){
-//                    Toast.makeText(LoginPage.this, "this license is incorrect.", Toast.LENGTH_SHORT).show();
-//                }
-
-
                 try {
                     String responseBody = new String(error.networkResponse.data, "utf-8");
                     JSONObject data = new JSONObject(responseBody);

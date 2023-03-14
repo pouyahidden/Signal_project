@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +55,9 @@ public class Massage extends Fragment {
     private RecyclerView recyclerView;
     private List<TicketModel> ticketModels;
     private TicketAdapter ticketAdapter;
+    private NestedScrollView nestedSV;
+    private int page = 1;
+    private final int safahat=200;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -68,6 +72,21 @@ public class Massage extends Fragment {
         search = root.findViewById(R.id.search);
         ticketModels = new ArrayList<>();
         loadingPB = root.findViewById(R.id.idLoadingPB);
+        nestedSV = root.findViewById(R.id.idNestedSV);
+
+
+        nestedSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                // on scroll change we are checking when users scroll as bottom.
+                if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()) {
+
+                    page++;
+                    loadingPB.setVisibility(View.VISIBLE);
+                    MakeVolleyConnection(page, safahat);
+                }
+            }
+        });
 
         search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -76,7 +95,7 @@ public class Massage extends Fragment {
                     String url1 = search.getText().toString();
 
                     url = "https://vprofit.info/api/support/all?filter=&q=" + url1 + "&per_page=10";
-                    MakeVolleyConnection();
+                    MakeVolleyConnection( page,  safahat);
                     return true;
                 }
                 return false;
@@ -85,7 +104,7 @@ public class Massage extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        MakeVolleyConnection();
+        MakeVolleyConnection( page,  safahat);
         newmessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,8 +121,23 @@ public class Massage extends Fragment {
         binding = null;
     }
 
-    private void MakeVolleyConnection() {
-        ticketModels = new ArrayList<>();
+    private void MakeVolleyConnection(int page, int safahat) {
+
+
+        if (page > safahat) {
+            // checking if the page number is greater than limit.
+            // displaying toast message in this case when page>limit.
+            Toast.makeText(getContext(), "That's all the data..", Toast.LENGTH_SHORT).show();
+
+            // hiding our progress bar.
+            loadingPB.setVisibility(View.GONE);
+            return;
+        }
+        // creating a string variable for url .
+        String url = "https://vprofit.info/api/support/all?filter=&q&per_page=10&page=" + page;
+
+
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.
                 Method.GET, url, null, new Response.Listener<JSONObject>() {
 

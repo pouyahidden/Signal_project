@@ -2,6 +2,9 @@ package com.example.signal.Adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
+import android.text.Html;
+import android.text.TextUtils;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -19,6 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.signal.Model.Outer;
 import com.example.signal.R;
+
+import org.sufficientlysecure.htmltextview.HtmlResImageGetter;
+import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +102,7 @@ public class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> 
         @BindView(R.id.status_text)
         TextView mark;
         @BindView(R.id.description)
-        TextView description;
+        HtmlTextView description;
         @BindView(R.id.child_recycler)
         RecyclerView rvOuter;
         private InnerAdapter innerAdapter;
@@ -152,8 +158,18 @@ public class OuterAdapter extends RecyclerView.Adapter<OuterAdapter.ViewHolder> 
                 time.setText(outer.getHuman_date());
                 currency_mark.setText(outer.getCurrency_mark());
 
-                description.setText(outer.getMark());
+                String s_des = outer.getMark();
+
+                if (s_des.equals("null")){
+                    description.setVisibility(View.GONE);
+                }else {
+                    description.setHtml(s_des);
+                }
+
+              //  String text = TextUtils.htmlEncode();
+                //    description.setText(text);
                 mark.setText(outer.getDescription());
+
                 String color = outer.getTrade_type();
 
                 String titles= outer.getTitle();
