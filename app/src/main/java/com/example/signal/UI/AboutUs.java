@@ -1,6 +1,8 @@
 package com.example.signal.UI;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +32,8 @@ import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 import me.biubiubiu.justifytext.library.JustifyTextView;
 
@@ -143,8 +147,28 @@ public class AboutUs extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 // below line is use to display a toast message along with our error.
-                Toast.makeText(getApplicationContext(), "Fail to get data..", Toast.LENGTH_SHORT).show();
-            }
+                try {
+
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getApplicationContext(), Splash.class);
+                            startActivity(i);
+
+                        }else {
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+                catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+
+                }            }
         });
         // at last we are adding our json
         // object request to our request

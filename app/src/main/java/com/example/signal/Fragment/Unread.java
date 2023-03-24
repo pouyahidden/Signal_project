@@ -2,12 +2,15 @@ package com.example.signal.Fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,6 +43,7 @@ import com.example.signal.Helper.MyApplication;
 import com.example.signal.Model.Inner;
 import com.example.signal.Model.TicketModel;
 import com.example.signal.R;
+import com.example.signal.UI.Splash;
 import com.example.signal.databinding.UnreadBinding;
 import com.google.android.material.card.MaterialCardView;
 
@@ -47,18 +51,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Unread extends Fragment {
-    private static String url = "https://vprofit.info/api/support/all?filter=unread&q&per_page=10";
-    private  RecyclerView recyclerView;
+     String url = "";
+    private  RecyclerView recyclerView,recyclerViewsearch;
     private List<TicketModel> ticketModels;
     String token;
     EditText search;
-
     MaterialCardView newmessage;
     private ProgressBar loadingPB;
     RequestQueue requestQueue;
@@ -67,7 +71,8 @@ public class Unread extends Fragment {
     private UnreadBinding binding;
     private NestedScrollView nestedSV;
     private int page = 1;
-    private final int safahat=200;
+    String searchs="";
+    private int safahat=300;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
@@ -80,10 +85,6 @@ public class Unread extends Fragment {
                 MakeVolleyConnection(page,safahat);
             }
 
-            //setupRv();
-
-
-
         }
     };
 
@@ -92,10 +93,8 @@ public class Unread extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-
         binding = UnreadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter("custom-action-local-broadcast"));
         SharedPreferences sp =getActivity().getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
@@ -103,6 +102,7 @@ public class Unread extends Fragment {
 
         newmessage = root.findViewById(R.id.newmessage);
         recyclerView=root.findViewById(R.id.recyclerview);
+        recyclerViewsearch=root.findViewById(R.id.recyclerviewsearch);
         search = root.findViewById(R.id.search);
         loadingPB =root.findViewById(R.id.idLoadingPB);
         requestQueue = Volley.newRequestQueue(getActivity());
@@ -118,20 +118,19 @@ public class Unread extends Fragment {
                     page++;
                     loadingPB.setVisibility(View.VISIBLE);
                     MakeVolleyConnection(page, safahat);
+
                 }
             }
         });
 
 
-
+//searchs = "pouya1";
         search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String url1 = search.getText().toString();
+                     searchs = search.getText().toString();
 
-                    url= "https://vprofit.info/api/support/all?filter=unread&q="+url1+"&per_page=10";
-                    MakeVolleyConnection(page,safahat);
                     return true;
                 }
                 return false;
@@ -147,8 +146,8 @@ public class Unread extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),RecyclerView.VERTICAL,false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        MakeVolleyConnection(page,safahat);
 
+            MakeVolleyConnection(page, safahat);
 
         return root;
     }
@@ -169,8 +168,8 @@ public class Unread extends Fragment {
             loadingPB.setVisibility(View.GONE);
             return;
         }
-        // creating a string variable for url .
-        String url = "https://vprofit.info/api/support/all?filter=unread&q&per_page=10&page=" + page;
+
+        url= "https://vprofit.info/api/support/all?filter=unread&q="+searchs+"&per_page=10&page="+page;
 
         StringRequest jsonObjectRequest = new StringRequest(Request.
                 Method.GET, url,  new Response.Listener<String>() {
@@ -217,7 +216,29 @@ public class Unread extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "" + error, Toast.LENGTH_SHORT).show();
+
+                try {
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getActivity().getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getContext(), Splash.class);
+                            startActivity(i);
+
+                        }else {
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+                }
+
+
+
             }
         }){
             @Override
@@ -231,7 +252,9 @@ public class Unread extends Fragment {
         };
         MyApplication.getInstance().addToRequestQueue(jsonObjectRequest);
     }
+    public void refresh() {
 
-
+        Log.i("Refresh", "YES");
+    }
 }
 

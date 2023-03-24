@@ -42,6 +42,7 @@ import com.example.signal.databinding.FragmentMenuBinding;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -233,7 +234,28 @@ public class Menu extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
 
+                try {
 
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getActivity().getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getContext(), Splash.class);
+                            startActivity(i);
+
+                        }else {
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+                catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+
+                }
 
 
             }

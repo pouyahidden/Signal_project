@@ -13,5 +13,6 @@ dependencyResolutionManagement {
         jcenter()
     }
 }
+
 rootProject.name = "Signal"
 include ':app'

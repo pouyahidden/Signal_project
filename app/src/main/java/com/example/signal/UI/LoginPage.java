@@ -1,5 +1,6 @@
 package com.example.signal.UI;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -141,10 +142,20 @@ public class LoginPage extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
                 try {
-                    String responseBody = new String(error.networkResponse.data, "utf-8");
-                    JSONObject data = new JSONObject(responseBody);
-                    String message = data.getString("message");
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getApplicationContext(), Splash.class);
+                            startActivity(i);
+
+                        }else {
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
                 } catch (JSONException e) {
 
                 } catch (UnsupportedEncodingException errorr) {

@@ -31,6 +31,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.signal.Adapter.OuterAdapter;
@@ -66,13 +67,17 @@ public class MainActivity extends AppCompatActivity {
     List<String> values = new ArrayList<String>();
     List<String> ids = new ArrayList<String>();
     String url1 = "https://vprofit.info/api/signal/all?filter=";
-    String url3 = "&per_page=10&page=";
-    String url = "https://vprofit.info/api/signal/all?filter=&page=";
+    String url3 = "&per_page=10&page=1";
+    String url4 = "&per_page=10&page=";
+    public static String url = "https://vprofit.info/api/signal/all?filter=&page=";
     boolean doubleBackToExitPressedOnce = false;
     private final List<Inner> inners = new ArrayList<>();
     Outer dm = new Outer("trade_type", "currency_mark", "human_date", "title", "description", "mark", "profit", inners);
     private NestedScrollView nestedSV;
     private ProgressBar loadingPB;
+    String  urlsignal="";
+    String  urlfilter="";
+    int shart=0;
     private OuterAdapter outerAdapter;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -80,9 +85,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             message = intent.getStringExtra("message");
-            url = url1 + message + url3+"&status=1" ;
-            setupRv();
-            MakeVolleyConnection(page, limit);
+            if (message.equals("")){
+                shart=0;
+                setupRv();
+                MakeVolleyConnection(page, limit);
+            }else {
+                shart=1;
+                setupRv();
+                MakeVolleyConnectionfilter(page, limit);
+            }
+
         }
     };
 
@@ -102,11 +114,20 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("custom-action-local-broadcast"));
 
-
         SharedPreferences sp = getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
         token = sp.getString("token", "");
+
         setupRv();
-        MakeVolleyConnection(page, limit);
+        if (shart==1){
+
+            MakeVolleyConnectionfilter(page, limit);
+        }else {
+
+            MakeVolleyConnection(page, limit);
+        }
+
+
+
 
         nestedSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
@@ -116,7 +137,12 @@ public class MainActivity extends AppCompatActivity {
 
                     page++;
                     loadingPB.setVisibility(View.VISIBLE);
-                    MakeVolleyConnection(page, limit);
+                    if (shart==1){
+
+                        MakeVolleyConnectionfilter(page, limit);
+                    }else {
+                        MakeVolleyConnection(page, limit);
+                    }
                 }
             }
         });
@@ -130,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 fragtrans.replace(R.id.nav_host_fragment_activity_main23, new Menu());
                 fragtrans.addToBackStack(SyncStateContract.Constants.class.getName());
                 fragtrans.commit();
+
             }
         });
         more.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +164,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 BottomSheetDialog bottomSheet = new BottomSheetDialog();
                 bottomSheet.show(getSupportFragmentManager(), "ModalBottomSheet");
+                shart=0;
+                page=1;
+               // Toast.makeText(MainActivity.this, shart+"", Toast.LENGTH_SHORT).show();
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
@@ -169,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
             loadingPB.setVisibility(View.GONE);
             return;
         }
-        url = url + page + "&status=1";
+        urlsignal = url + page + "&status=1";
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.GET, urlsignal, new Response.Listener<String>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(String response) {
@@ -234,22 +264,143 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                try {
-                    String responseBody = new String(error.networkResponse.data, "utf-8");
-                    JSONObject data = new JSONObject(responseBody);
-                    String message = data.getString("message");
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
 
-                } catch (UnsupportedEncodingException errorr) {
-                }
+
+                    try {
+
+                        if(error != null){
+                            String responseBody = new String(error.networkResponse.data, "utf-8");
+                            JSONObject data = new JSONObject(responseBody);
+                            String message = data.getString("message");
+                            if (message.equals("Unauthenticated.")){
+                                SharedPreferences settings = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                                settings.edit().remove("token").commit();
+                                Intent i = new Intent(getApplicationContext(), Splash.class);
+                                startActivity(i);
+
+                            }else {
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            }
+                            }
+                    }
+                    catch (JSONException e) {
+
+                    } catch (UnsupportedEncodingException errorr) {
+
+                    }
+
+
+
             }
         }) {
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headerMap = new HashMap<String, String>();
-                headerMap.put("Content-Type", "application/json");
+                headerMap.put("Accept", "application/json");
+                headerMap.put("Authorization", "Bearer " + token);
+
+                return headerMap;
+            }
+        };
+        queue.add(request);
+    }
+
+    private void MakeVolleyConnectionfilter(int page, int limit) {
+
+        if (page > limit) {
+            Toast.makeText(this, "That's all the signals..", Toast.LENGTH_SHORT).show();
+            loadingPB.setVisibility(View.GONE);
+            return;
+        }
+
+        urlfilter = url1 + message + url4+page+"&status=1" ;
+
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        StringRequest request = new StringRequest(Request.Method.GET, urlfilter, new Response.Listener<String>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(String response) {
+
+                loadingPB.setVisibility(View.GONE);
+                more.setVisibility(View.VISIBLE);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray arafilter = jsonObject.getJSONArray("array_filters");
+                    JSONObject data = jsonObject.getJSONObject("signals");
+                    JSONArray region = data.getJSONArray("data");
+
+                    ids.clear();
+                    values.clear();
+                    for (int i = 0; i < arafilter.length(); i++) {
+                        JSONObject obj = arafilter.getJSONObject(i);
+                        String id = obj.getString("id");
+                        String name = obj.getString("title");
+
+                        ids.add(id);
+                        values.add(name);
+
+                        Intent intent = getIntent();
+                        intent.putStringArrayListExtra("filterlist", new ArrayList<>(values));
+                        intent.putStringArrayListExtra("filterid", new ArrayList<>(ids));
+                    }
+                    outers.clear();
+
+                    for (int i = 0; i < region.length(); i++) {
+                        JSONObject parent = region.getJSONObject(i);
+
+                        String trade_type = dm.setTrade_type(parent.getString("trade_type"));
+                        String currency_mark = dm.setCurrency_mark(parent.getString("currency_mark"));
+                        String human_date = dm.setHuman_date(parent.getString("human_date"));
+                        String mark = dm.setMark(parent.getString("status_text"));
+                        String des = dm.setDescription(parent.getString("description"));
+                        String profit = dm.setProfit(parent.getString("profit"));
+                        String title = dm.setTitle(parent.getString("title"));
+                        inners.clear();
+                        JSONArray item = parent.getJSONArray("array_details");
+
+                        List<Inner> innersitems = new ArrayList<>();
+                        for (int j = 0; j < item.length(); j++) {
+                            JSONObject child = item.getJSONObject(j);
+                            String name = single.setName(child.getString("name"));
+                            String vall = single.setVall(child.getString("value"));
+                            innersitems.add(new Inner(name, vall));
+                        }
+                        outers.clear();
+                        outerAdapter.addOuter(new Outer(trade_type, currency_mark, human_date, title, mark, des, profit, innersitems));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                try {
+
+                    String responseBody = new String(error.networkResponse.data, "utf-8");
+                    JSONObject data = new JSONObject(responseBody);
+                    String message = data.getString("message");
+                    // String code= data.getString("status");
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+
+                }
+
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headerMap = new HashMap<String, String>();
+                headerMap.put("Accept", "application/json");
                 headerMap.put("Authorization", "Bearer " + token);
 
                 return headerMap;
@@ -275,4 +426,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000);
     }
+
 }

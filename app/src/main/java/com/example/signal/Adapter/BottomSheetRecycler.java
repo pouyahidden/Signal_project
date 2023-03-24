@@ -122,8 +122,9 @@ public class BottomSheetRecycler extends RecyclerView.Adapter<BottomSheetRecycle
 
     @Override public int getItemCount()
     {
-        // pass total list size
-        return arrayList.size();
+
+        return arrayList == null ? 0 : arrayList.size();
+
     }
 
     public class ViewHolder

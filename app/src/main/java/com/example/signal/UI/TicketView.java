@@ -2,6 +2,8 @@ package com.example.signal.UI;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +44,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -160,38 +163,9 @@ public class TicketView extends AppCompatActivity {
             }
         });
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL,true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, true);
         recyclerView.setLayoutManager(linearLayoutManager);
         MakeVolleyConnection();
-
-        // Create and set the layout manager
-        // For the RecyclerView.
-//        LinearLayoutManager layoutManager
-//                = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-
-
-        // pass the arguments
-//        itemClasses.add(new ChatItemModel(ChatItemModel.User_chat, R.drawable.ic_baseline_arrow_drop_down_24, "user", "des", "s18","s"));
-//        itemClasses.add(new ChatItemModel(ChatItemModel.User_chat, R.drawable.ic_baseline_arrow_drop_down_24, "user", "", "",""));
-//      //  itemClasses.add(new ChatItemModel(ChatItemModel.System_chat, R.drawable.ic_baseline_arrow_drop_down_24, "Item Type 2", "Text", ""));
-//        itemClasses.add(new ChatItemModel(ChatItemModel.User_chat, R.drawable.ic_baseline_arrow_drop_down_24, "user", "", "",""));
-//     //   itemClasses.add(new ChatItemModel(ChatItemModel.System_chat, R.drawable.ic_baseline_arrow_drop_down_24, "Item Type 2", "Text", ""));
-//     //   itemClasses.add(new ChatItemModel(ChatItemModel.System_chat, R.drawable.ic_baseline_arrow_drop_down_24, "Item Type 2", "Text", ""));
-//        itemClasses.add(new ChatItemModel(ChatItemModel.User_chat, R.drawable.ic_baseline_arrow_drop_down_24, "user", "", "",""));
-//        itemClasses.add(new ChatItemModel(ChatItemModel.System_chat, R.drawable.ic_baseline_arrow_drop_down_24, "Item Type 2", "Text", ""));
-//
-//        ChatAdapter adapterClass = new ChatAdapter(itemClasses);
-//
-//        ChatAdapter adapter = new ChatAdapter(itemClasses);
-//
-//
-//        // set the adapter
-//        recyclerView.setAdapter(adapter);
-//
-//     //   recyclerView.setAdapter(adapterClass);
-//        adapter.notifyDataSetChanged();
-//        adapterClass.notifyDataSetChanged();
 
     }
 
@@ -223,11 +197,6 @@ public class TicketView extends AppCompatActivity {
                             recyclerViewData1.setTime(userData.getString("humanDate"));
                             itemClasses.add(recyclerViewData1);
                         }
-
-
-                        // recyclerViewData.setTitle(userData.getString("is_support"));
-                        //recyclerViewData.setText(userData.getString("fileUrl"));
-
 
                     }
 
@@ -272,9 +241,10 @@ public class TicketView extends AppCompatActivity {
 
                         try {
 
+                            MakeVolleyConnection();
+                            message.setText("");
+
                             JSONObject jsonObject = new JSONObject(response);
-
-
                             if (jsonObject.optString("message").equals("The message has been successfully sent to the user panel")) {
 
 
@@ -316,18 +286,25 @@ public class TicketView extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.toast_zarb,
-                        findViewById(R.id.toast_layout_root));
+                try {
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getApplicationContext(), Splash.class);
+                            startActivity(i);
 
+                        }else {
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } catch (JSONException e) {
 
-                Toast toast = new Toast(getApplicationContext());
-                TextView text = layout.findViewById(R.id.text);
-                text.setText("Hello! This is a custom toast!2");
-                toast.setGravity(Gravity.FILL_HORIZONTAL | Gravity.BOTTOM, 0, 0);
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(layout);
-                toast.show();
+                } catch (UnsupportedEncodingException errorr) {
+                }
 
             }
         }) {

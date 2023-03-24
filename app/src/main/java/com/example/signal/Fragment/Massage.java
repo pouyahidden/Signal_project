@@ -3,6 +3,8 @@ package com.example.signal.Fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -30,6 +32,7 @@ import com.example.signal.Adapter.TicketAdapter;
 import com.example.signal.Helper.MyApplication;
 import com.example.signal.Model.TicketModel;
 import com.example.signal.R;
+import com.example.signal.UI.Splash;
 import com.example.signal.databinding.MassageBinding;
 import com.google.android.material.card.MaterialCardView;
 
@@ -46,7 +49,7 @@ import java.util.Map;
 
 public class Massage extends Fragment {
 
-    private static String url = "https://vprofit.info/api/support/all?filter=&q&per_page=10";
+     String url = "";
     MaterialCardView newmessage;
     String token;
     EditText search;
@@ -92,9 +95,9 @@ public class Massage extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String url1 = search.getText().toString();
+                    String searched = search.getText().toString();
 
-                    url = "https://vprofit.info/api/support/all?filter=&q=" + url1 + "&per_page=10";
+                    url = "https://vprofit.info/api/support/all?filter=&q=" + searched + "&per_page=10&page=1";
                     MakeVolleyConnection( page,  safahat);
                     return true;
                 }
@@ -134,7 +137,7 @@ public class Massage extends Fragment {
             return;
         }
         // creating a string variable for url .
-        String url = "https://vprofit.info/api/support/all?filter=&q&per_page=10&page=" + page;
+         url = "https://vprofit.info/api/support/all?filter=&q&per_page=10&page=" + page;
 
 
 
@@ -174,11 +177,23 @@ public class Massage extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 try {
-                    String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                    JSONObject data = new JSONObject(responseBody);
-                    String message = data.getString("message");
-                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getActivity().getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getContext(), Splash.class);
+                            startActivity(i);
+
+                        }else {
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
                 } catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
                 }
             }
         }) {

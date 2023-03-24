@@ -47,16 +47,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         recyclerView = v.findViewById(R.id.bottomrecycler);
 
         ArrayList<String> ids = getActivity().getIntent().getStringArrayListExtra("filterid");
-
-
-      //  Toast.makeText(getActivity(), ""+s, Toast.LENGTH_SHORT).show();
-
-
-        //Toast.makeText(getActivity(), ss, Toast.LENGTH_SHORT).show();
         ArrayList<String> votedByList = getActivity().getIntent().getStringArrayListExtra("filterlist");
-//        for (int i = 0; i < 20; i++) {
-//            // add values in array list
-//            votedByList.add("RB " + i);
 
         itemClickListener = new ItemClickListener() {
             @Override
@@ -71,7 +62,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
                 String ss =(String.valueOf(ids.get(i)));
                 Intent("message",ss);
-               // Toast.makeText(getActivity(), "Selected : " + ss, Toast.LENGTH_SHORT).show();
+
                 dismiss();
             }
         };
@@ -79,87 +70,9 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new BottomSheetRecycler(votedByList, itemClickListener);
         recyclerView.setAdapter(adapter);
-        //}
-
-        //Toast.makeText(getContext(), votedByList + "ine", Toast.LENGTH_SHORT).show();
-
-//
-//        rb1 = v.findViewById(R.id.rb1);
-//        rb2 = v.findViewById(R.id.rb2);
-//        rb3 = v.findViewById(R.id.rb3);
-//        rb4 = v.findViewById(R.id.rb4);
-//        rb5 = v.findViewById(R.id.rb5);
-//        rb6 = v.findViewById(R.id.rb6);
-//        rg = v.findViewById(R.id.rg);
-//
-//        SharedPreferences sp = getContext().getSharedPreferences("prefs", Activity.MODE_PRIVATE);
-//        int value = sp.getInt("i", 0);
-//        if (value == 1) {
-//            rb1.setChecked(true);
-//        } else if (value == 2) {
-//            rb2.setChecked(true);
-//        } else if (value == 3) {
-//            rb3.setChecked(true);
-//        } else if (value == 4) {
-//            rb4.setChecked(true);
-//        } else if (value == 5) {
-//            rb5.setChecked(true);
-//        } else if (value == 6) {
-//            rb6.setChecked(true);
-//        }
-//        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//
-//                switch (checkedId) {
-//                    case R.id.rb1:
-//                        i = 1;
-//                        sharedprefs();
-//                        Intent("message", "Cryptocurrency");
-//                        dismiss();
-//                        break;
-//                    case R.id.rb2:
-//                        i = 2;
-//                        sharedprefs();
-//                        Intent("message", "Futures");
-//                        dismiss();
-//                        break;
-//                    case R.id.rb3:
-//                        i = 3;
-//                        sharedprefs();
-//                        Intent("message", "Stocks");
-//                        dismiss();
-//                        break;
-//                    case R.id.rb4:
-//                        i = 4;
-//                        sharedprefs();
-//                        Intent("message", "Buy");
-//                        dismiss();
-//                        break;
-//                    case R.id.rb5:
-//                        i = 5;
-//                        sharedprefs();
-//                        Intent("message", "Sell");
-//                        dismiss();
-//                        break;
-//                    case R.id.rb6:
-//                        i = 6;
-//                        sharedprefs();
-//                        Intent("message", "all");
-//                        dismiss();
-//                        break;
-//                }
-//            }
-//        });
-
         return v;
     }
 
-//    public void sharedprefs() {
-//        SharedPreferences sp = getContext().getSharedPreferences("prefs", Activity.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sp.edit();
-//        editor.putInt("i", i);
-//        editor.commit();
-//    }
 
     public void Intent(String message, String value) {
 

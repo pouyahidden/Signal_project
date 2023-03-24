@@ -42,6 +42,7 @@ import com.example.signal.Fragment.Notification;
 import com.example.signal.Model.Inner;
 import com.example.signal.Model.Outer;
 import com.example.signal.UI.MainActivity;
+import com.example.signal.UI.Splash;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,11 +70,15 @@ public class HistorySignal extends AppCompatActivity {
     List<String> values = new ArrayList<String>();
     List<String> ids = new ArrayList<String>();
     String url1 = "https://vprofit.info/api/signal/all?filter=";
-    String url3 = "&per_page=10&page=";
-    String url = "https://vprofit.info/api/signal/all?filter=&page=";
+    String url3 = "&per_page=10&page=1";
+    String url4 = "&per_page=10&page=";
+    public static String url = "https://vprofit.info/api/signal/all?filter=&page=";
+    String  urlsignal="";
+    String  urlfilter="";
     boolean doubleBackToExitPressedOnce = false;
     private ProgressBar loadingPB;
     private OuterAdapter outerAdapter;
+    int shart=0;
     private NestedScrollView nestedSV;
     Outer dm = new Outer("trade_type", "currency_mark", "human_date", "title", "description", "mark", "profit", inners);
 
@@ -82,10 +87,15 @@ public class HistorySignal extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             message = intent.getStringExtra("message");
-            url = url1 + message + url3+"&status=0" ;
-            setupRv();
-            MakeVolleyConnection(page, limit);
-
+            if (message.equals("")){
+                shart=0;
+                setupRv();
+                MakeVolleyConnection(page, limit);
+            }else {
+                shart=1;
+                setupRv();
+                MakeVolleyConnectionfilter(page, limit);
+            }
 
         }
     };
@@ -107,7 +117,13 @@ public class HistorySignal extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
         token = sp.getString("token", "");
         setupRv();
-        MakeVolleyConnection(page, limit);
+        if (shart==1){
+
+            MakeVolleyConnectionfilter(page, limit);
+        }else {
+
+            MakeVolleyConnection(page, limit);
+        }
 
         nestedSV.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
@@ -115,7 +131,12 @@ public class HistorySignal extends AppCompatActivity {
                 if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()) {
                     page++;
                     loadingPB.setVisibility(View.VISIBLE);
-                    MakeVolleyConnection(page, limit);
+                    if (shart==1){
+
+                        MakeVolleyConnectionfilter(page, limit);
+                    }else {
+                        MakeVolleyConnection(page, limit);
+                    }
                 }
             }
         });
@@ -137,6 +158,8 @@ public class HistorySignal extends AppCompatActivity {
             public void onClick(View view) {
                 BottomSheetDialog bottomSheet = new BottomSheetDialog();
                 bottomSheet.show(getSupportFragmentManager(), "ModalBottomSheet");
+                shart=0;
+                page=1;
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
@@ -170,9 +193,9 @@ public class HistorySignal extends AppCompatActivity {
             loadingPB.setVisibility(View.GONE);
             return;
         }
-        url = url + page + "&status=0";
+        urlsignal = url + page + "&status=0";
         RequestQueue queue = Volley.newRequestQueue(HistorySignal.this);
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.GET, urlsignal, new Response.Listener<String>() {
 
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -246,6 +269,123 @@ public class HistorySignal extends AppCompatActivity {
                     JSONObject data = new JSONObject(responseBody);
                     String message = data.getString("message");
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+
+                } catch (UnsupportedEncodingException errorr) {
+                }
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headerMap = new HashMap<String, String>();
+                headerMap.put("Accept", "application/json");
+                headerMap.put("Authorization", "Bearer " + token);
+
+                return headerMap;
+            }
+        };
+
+        queue.add(request);
+    }
+
+
+    private void MakeVolleyConnectionfilter(int page, int limit) {
+        if (page > limit) {
+
+            Toast.makeText(this, "That's all the signals..", Toast.LENGTH_SHORT).show();
+            loadingPB.setVisibility(View.GONE);
+            return;
+        }
+
+        urlfilter = url1 + message + url4+page+"&status=0" ;
+
+        RequestQueue queue = Volley.newRequestQueue(HistorySignal.this);
+        StringRequest request = new StringRequest(Request.Method.GET, urlfilter, new Response.Listener<String>() {
+
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(String response) {
+
+                loadingPB.setVisibility(View.GONE);
+
+                more.setVisibility(View.VISIBLE);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray arafilter = jsonObject.getJSONArray("array_filters");
+                    JSONObject data = jsonObject.getJSONObject("signals");
+                    JSONArray region = data.getJSONArray("data");
+
+                    ids.clear();
+                    values.clear();
+                    for (int i = 0; i < arafilter.length(); i++) {
+                        JSONObject obj = arafilter.getJSONObject(i);
+                        String id = obj.getString("id");
+                        String name = obj.getString("title");
+
+                        ids.add(id);
+                        values.add(name);
+
+                        Intent intent = getIntent();
+                        intent.putStringArrayListExtra("filterlist", new ArrayList<>(values));
+                        intent.putStringArrayListExtra("filterid", new ArrayList<>(ids));
+
+                    }
+
+                    outers.clear();
+
+                    for (int i = 0; i < region.length(); i++) {
+                        JSONObject parent = region.getJSONObject(i);
+
+                        String trade_type = dm.setTrade_type(parent.getString("trade_type"));
+                        String currency_mark = dm.setCurrency_mark(parent.getString("currency_mark"));
+                        String human_date = dm.setHuman_date(parent.getString("human_date"));
+                        String mark = dm.setMark(parent.getString("status_text"));
+                        String des = dm.setDescription(parent.getString("description"));
+                        String profit = dm.setProfit(parent.getString("profit"));
+                        String title = dm.setTitle(parent.getString("title"));
+                        inners.clear();
+                        JSONArray item = parent.getJSONArray("array_details");
+
+                        List<Inner> innersitems = new ArrayList<>();
+                        for (int j = 0; j < item.length(); j++) {
+                            JSONObject child = item.getJSONObject(j);
+                            String name = single.setName(child.getString("name"));
+                            String vall = single.setVall(child.getString("value"));
+                            innersitems.add(new Inner(name, vall));
+
+                        }
+                        outers.clear();
+                        outerAdapter.addOuter(new Outer(trade_type, currency_mark, human_date, title, mark, des, profit, innersitems));
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try {
+                    if(error != null){
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.getString("message");
+                        if (message.equals("Unauthenticated.")){
+                            SharedPreferences settings = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+                            settings.edit().remove("token").commit();
+                            Intent i = new Intent(getApplicationContext(), Splash.class);
+                            startActivity(i);
+
+                        }else{
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+
+                        }
+                    }
                 } catch (JSONException e) {
 
                 } catch (UnsupportedEncodingException errorr) {
