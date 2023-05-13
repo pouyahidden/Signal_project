@@ -6,7 +6,7 @@
     android:background="@mipmap/bulurbacklogin"
 
     android:layout_height="match_parent"
-    tools:context=".UI.Profile">
+    tools:context="info.vprofit.app.UI.Profile">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="50dp"

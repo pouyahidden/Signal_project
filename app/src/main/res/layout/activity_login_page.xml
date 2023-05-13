@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bacground"
-    tools:context=".UI.LoginPage">
+    tools:context="info.vprofit.app.UI.LoginPage">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -151,17 +151,34 @@
                 android:layout_marginStart="20dp"
                 app:cardCornerRadius="15dp">
 
+
+                <ProgressBar
+                    android:layout_width="50dp"
+                    android:indeterminateTint="@color/white"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:id="@+id/idLoadingPB"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    android:elevation="5dp"
+                    android:backgroundTint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_height="50dp"/>
+
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/gradiant"
                     android:gravity="center">
 
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
+                        android:id="@+id/logtext"
                         android:text="Login"
                         android:textColor="@color/white"
                         android:textSize="22sp"

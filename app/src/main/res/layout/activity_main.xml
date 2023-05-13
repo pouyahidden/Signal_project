@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@color/bacgroundmain"
     android:layout_height="match_parent"
-    tools:context=".UI.MainActivity">
+    tools:context="info.vprofit.app.UI.MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -92,6 +92,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/line"
         android:src="@mipmap/time"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

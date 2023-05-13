@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@mipmap/bulurbacklogin"
     android:layout_height="match_parent"
-    tools:context=".UI.TicketView">
+    tools:context="info.vprofit.app.UI.TicketView">
 
     <ImageView
         android:layout_width="30dp"

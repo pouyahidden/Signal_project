@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_menu"
-        android:name="com.example.signal.Fragment.Menu"
+        android:name="info.vprofit.app.Fragment.Menu"
         android:label="title_menu"
         tools:layout="@layout/fragment_menu" />
 </navigation>

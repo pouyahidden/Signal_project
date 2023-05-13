@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@mipmap/bulurbacklogin"
     android:layout_height="match_parent"
-    tools:context=".UI.Subscribtion">
+    tools:context="info.vprofit.app.UI.Subscribtion">
 
     <ScrollView
         android:layout_width="match_parent"

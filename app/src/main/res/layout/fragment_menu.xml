@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:id="@+id/exit"
     android:layout_height="match_parent"
-    tools:context=".UI.AboutUs">
+    tools:context="info.vprofit.app.UI.AboutUs">
 
 <LinearLayout
     android:layout_width="250dp"

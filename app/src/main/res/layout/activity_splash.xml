@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@mipmap/bulurbacklogin"
     android:layout_height="match_parent"
-    tools:context=".UI.Splash">
+    tools:context="info.vprofit.app.UI.Splash">
 
 
     <ImageView
@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:src="@mipmap/logo"/>
+        android:src="@mipmap/logoicon"/>
 
     <TextView
         android:layout_width="wrap_content"

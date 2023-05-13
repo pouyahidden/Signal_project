@@ -1,41 +1,33 @@
 {
   "project_info": {
-    "project_number": "788026139307",
-    "project_id": "signal-project-2a669",
-    "storage_bucket": "signal-project-2a669.appspot.com"
+    "project_number": "911882467749",
+    "project_id": "tradedsignal",
+    "storage_bucket": "tradedsignal.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788026139307:android:04a41788ffe857aeb20dee",
+        "mobilesdk_app_id": "1:911882467749:android:ae6c9d45798b02b12a104c",
         "android_client_info": {
-          "package_name": "com.example.signal"
+          "package_name": "info.vprofit.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "788026139307-2jg80ko5gnhnsd9a1k12qbrvnlspsdgj.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.signal",
-            "certificate_hash": "ff0baff6990a2f2d84688a8d2345901054319ec5"
-          }
-        },
-        {
-          "client_id": "788026139307-0mheoqp8rgas4qgei0ddtp37p0j0pcde.apps.googleusercontent.com",
+          "client_id": "911882467749-ul9dfo7jig8u61i4s4m0704l3rbrq1nu.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBWL24tM7_dXEOVD6jw9nWAj3OZ6TfzS0M"
+          "current_key": "AIzaSyCcXiB2VbfQDzZQf4OGJpDO6krEGC6pU38"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "788026139307-0mheoqp8rgas4qgei0ddtp37p0j0pcde.apps.googleusercontent.com",
+              "client_id": "911882467749-ul9dfo7jig8u61i4s4m0704l3rbrq1nu.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

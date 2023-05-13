@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:id="@+id/exit"
     android:layout_height="match_parent"
-    tools:context=".Fragment.Notification">
+    tools:context="info.vprofit.app.Fragment.Notification">
 
     <LinearLayout
         android:layout_width="250dp"
@@ -34,6 +34,7 @@
                     android:layout_marginStart="20dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
+                    app:tint="@color/icon"
                     android:focusable="true"
                     android:src="@mipmap/notification" />
 
@@ -63,6 +64,46 @@
                 android:background="@color/white"/>
 
 
+            <ProgressBar
+                android:layout_width="50dp"
+                android:indeterminateTint="@color/oranje"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/idLoadingPB"
+                android:visibility="visible"
+                android:elevation="5dp"
+                android:backgroundTint="@color/oranje"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="50dp"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:id="@+id/txt2"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="@color/text_color"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_marginEnd="5dp"
+                android:id="@+id/noifrecycler"
+                android:layout_marginStart="5dp"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/notifitems"
+                android:layout_marginTop="80dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
 
 
 

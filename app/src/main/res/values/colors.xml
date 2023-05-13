@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-
+    <color name="bottomshape">#FFF</color>
     <color name="icon">#312C46</color>
     <color name="bacground">#FFFFFF</color>
     <color name="bacgroundmain">#fff</color>

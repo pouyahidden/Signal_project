@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.signal"
+        applicationId "info.vprofit.app"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -71,5 +71,10 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.2.3')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
+
+    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'com.pusher:pusher-java-client:2.4.2'
+
+
 
 }

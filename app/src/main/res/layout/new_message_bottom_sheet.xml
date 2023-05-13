@@ -39,7 +39,7 @@
             style="@style/LoginTextInputLayoutStyle"
             android:layout_width="match_parent"
             app:boxStrokeColor="@color/oranje"
-            app:boxStrokeErrorColor="@color/white"
+            app:boxStrokeErrorColor="@color/icon"
             android:layout_marginTop="15dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
@@ -58,6 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:inputType="text"
+                android:textColor="@color/text_color"
                 android:nextFocusDown="@id/descriptiont"
                 android:hint="Enter Title..." />
         </com.google.android.material.textfield.TextInputLayout>
@@ -79,6 +80,7 @@
 
                 <TextView
                     android:layout_width="match_parent"
+                    android:textColor="@color/text_color"
                     android:layout_height="wrap_content"
                     android:text="Priority ;"/>
 
@@ -96,11 +98,13 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
+
                 android:layout_height="wrap_content"
                 style="@style/spinner_style">
 
                 <TextView
                     android:layout_width="match_parent"
+                    android:textColor="@color/text_color"
                     android:layout_height="wrap_content"
                     android:text="Department ;"/>
 
@@ -142,6 +146,7 @@
                 android:layout_gravity="top"
                 android:gravity="top"
                 android:inputType="text"
+                android:textColor="@color/text_color"
                 android:nextFocusDown="@id/radiobtn"
                 android:layout_height="match_parent"
                 android:hint="Write your message..." />
@@ -210,6 +215,20 @@
             android:layout_marginStart="20dp"
             app:cardCornerRadius="15dp">
 
+            <ProgressBar
+                android:layout_width="50dp"
+                android:indeterminateTint="@color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/idLoadingPB"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:elevation="5dp"
+                android:backgroundTint="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="50dp"/>
+
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:background="@drawable/gradiant"
@@ -222,12 +241,14 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:scaleType="fitXY"
+                    android:id="@+id/sendicon"
                     android:src="@mipmap/messages"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Send Message"
+                    android:id="@+id/sendtext"
                     android:layout_marginStart="5dp"
                     android:layout_gravity="center"
                     android:textSize="22sp"
